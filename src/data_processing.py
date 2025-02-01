@@ -10,10 +10,10 @@ def load_and_preprocess_data(
     """
     Load text from a file and preprocess them into bigrams with specified start and end tokens.
 
-    This function reads a file where each line contains a word followed by additional data
-    (typically two numbers), all separated by spaces. It processes each word by adding specified
-    start and end tokens, then creates bigrams for each processed word. Remember transform the
-    letters to lowercase.
+    This function reads a file where each line contains a word followed by additional data (typically two numbers), 
+    all separated by spaces. It processes each word by adding specified start and end tokens, 
+    then creates bigrams for each processed word. 
+    Remember transform the letters to lowercase.
 
     Note: It is expected that each line in the file contains a word followed by two numerical
     data elements, all separated by spaces. The last two elements shall be ignored.
@@ -26,11 +26,19 @@ def load_and_preprocess_data(
     Returns:
         List[Tuple[str, str]]. A list of bigrams, where each bigram is a tuple of two characters.
     """
+
     with open(filepath, "r") as file:
         lines: List[str] = file.read().splitlines()
 
     # TODO
-    bigrams: List[Tuple[str, str]] = None
+    # 1: Borramos de las lines los números del final y unimos los nombres separados
+    lines = [' '.join(line.split()[:-2]) for line in lines] # -2 ignoramos los 2 últimos elementos
+    # 2: Convertimos a minúsculas
+    lines = [[word.lower() for word in line] for line in lines]
+    # 3: Añadimos los tokens de inicio y fin letra por letra
+    lines = [[start_token] + list(line) + [end_token] for line in lines]
+    # 4: Generamos los bigramas
+    bigrams: List[Tuple[str, str]] = [(line[i], line[i+1]) for line in lines for i in range(len(line)-1)]
 
     return bigrams
 
@@ -49,7 +57,11 @@ def char_to_index(alphabet: str, start_token: str, end_token: str) -> Dict[str, 
     """
     # Create a dictionary with start token at the beginning and end token at the end
     # TODO
-    char_to_idx: Dict[str, int] = None
+
+    char_to_idx: Dict[str, int] = {start_token: 0}    
+    for i in range(len(alphabet)):
+        char_to_idx[alphabet[i]] = i + 1
+    char_to_idx[end_token] = len(alphabet) + 1
 
     return char_to_idx
 
@@ -66,7 +78,7 @@ def index_to_char(char_to_index: Dict[str, int]) -> Dict[int, str]:
     """
     # Reverse the char_to_index mapping
     # TODO
-    idx_to_char: Dict[int, str] = None
+    idx_to_char: Dict[int, str] = {v: k for k,v in char_to_index.items()}
 
     return idx_to_char
 
@@ -90,13 +102,22 @@ def count_bigrams(
         torch.Tensor. A 2D tensor where each cell (i, j) represents the count of the bigram
         formed by the i-th and j-th characters in the alphabet.
     """
+    """
+     Hint #3: A special function called plot counts. Check it out!
+    """
 
     # Initialize a 2D tensor for counting bigrams
     # TODO
-    bigram_counts: torch.Tensor = None
+    bigram_counts: torch.Tensor = torch.zeros(len(char_to_idx), len(char_to_idx))
 
     # Iterate over each bigram and update the count in the tensor
     # TODO
+    for bigram in bigrams:
+        char1, char2 = bigram
+        if char1 in char_to_idx and char2 in char_to_idx:
+            i = char_to_idx[char1]
+            j = char_to_idx[char2]
+            bigram_counts[i, j] += 1
 
     return bigram_counts
 
