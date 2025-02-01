@@ -17,3 +17,8 @@ scalers/
 *.pkl
 *.pt
 *.ini
+
+# Ignorar el entorno virtual
+NLP_P2/
+dudas/
+202201175_P2_NLP/
